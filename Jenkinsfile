@@ -3,7 +3,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main',
+                credentialsId: 'GITHUB_LOGIN',
+                url: 'https://github.com/franklyniyala/mern-estate.git'
 
             }
         }
