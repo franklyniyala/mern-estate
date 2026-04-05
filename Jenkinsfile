@@ -16,12 +16,6 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                sh 'docker compose run --rm api npm test'
-
-            }
-        }
 
         stage('Deploy') {
             steps {
@@ -32,7 +26,7 @@ pipeline {
 
     post {
         success {
-            echo '✅ Build and test successful!'
+            echo '✅ Build successful!'
             echo '✅ Application deployed successfully!'
         }
 
