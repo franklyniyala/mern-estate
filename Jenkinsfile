@@ -48,7 +48,7 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 sh '''
-                echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                echo $DOCKER_PASS | docker login -u $DOCKER_USERNAME --password-stdin
                 docker tag mern-application-client $DOCKER_USERNAME/mern-application-client:latest
                 docker tag mern-application-api $DOCKER_USERNAME/mern-application-api:latest
                 docker push $DOCKER_USERNAME/mern-application-client:latest
