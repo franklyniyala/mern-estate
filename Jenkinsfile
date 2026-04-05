@@ -50,10 +50,10 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 sh '''
-                docker tag mern-application-client $DOCKER_USERNAME/mern-application-client:latest
-                docker tag mern-application-api $DOCKER_USERNAME/mern-application-api:latest
-                docker push $DOCKER_USERNAME/mern-application-client:latest
-                docker push $DOCKER_USERNAME/mern-application-api:latest
+                docker tag mern-application-client ekenefranklyn/mern-application-client:latest
+                docker tag mern-application-api ekenefranklyn/mern-application-api:latest
+                docker push ekenefranklyn/mern-application-client:latest
+                docker push ekenefranklyn/mern-application-api:latest
                 '''
             }
         }
