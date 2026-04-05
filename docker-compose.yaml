@@ -1,0 +1,51 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: mern-estate-mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo-username
+      - MONGO_INITDB_ROOT_PASSWORD=mongo-password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: mern-estate-api
+    restart: unless-stopped
+    environment:
+      - MONGO=mongodb://mongo-username:mongo-password@mongo:27017/mern-estate?authSource=admin
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api:/app
+      - api_node_modules:/app/node_modules
+    depends_on:
+      - mongo
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: mern-estate-client
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - client_node_modules:/app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  mongo-data:
+  api_node_modules:
+  client_node_modules:
+
+
+    
