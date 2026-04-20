@@ -4,7 +4,7 @@ pipeline {
         environment {
             AWS_REGION = 'us-east-1'
             REPOSITORY_URI = '139156132664.dkr.ecr.us-east-1.amazonaws.com/mern-estate-repo'
-            IMAGE_TAG = '${BUILD_NUMBER}'
+            IMAGE_TAG = 'latest'
         }
 
     stages {
