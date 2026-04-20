@@ -49,14 +49,16 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'docker-compose build'
-                sh 'docker tag mern-app:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG'
+                sh 'docker tag mern-app-api:latest $REPOSITORY_URI:api-$IMAGE_TAG'
+                sh 'docker tag mern-app-client:latest $REPOSITORY_URI:client-$IMAGE_TAG'
             }
         }
 
 
         stage('Push to ECR') {
             steps {
-                sh 'docker push $REPOSITORY_URI:$IMAGE_TAG'
+                sh 'docker push $REPOSITORY_URI:api-$IMAGE_TAG'
+                sh 'docker push $REPOSITORY_URI:client-$IMAGE_TAG'
             }
         }
     }
