@@ -13,9 +13,10 @@ resource "aws_subnet" "mern-estate-public-subnet" {
   vpc_id            = aws_vpc.mern-estate-vpc.id
   cidr_block        = "10.0.${count.index}.0/24"
   availability_zone = var.availability_zones[count.index]
-
+  map_public_ip_on_launch = true 
   tags = {
     Name = "mern-estate-public-subnet[${count.index}]"
+    "kubernetes.io/role/elb" = "1"
   }
 }
 
@@ -26,9 +27,11 @@ resource "aws_subnet" "mern-estate-private-subnet" {
   vpc_id            = aws_vpc.mern-estate-vpc.id
   cidr_block        = "10.0.${count.index + 10}.0/24"
   availability_zone = var.availability_zones[count.index]
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "mern-estate-private-subnet[${count.index}]"
+    "kubernetes.io/role/internal-elb" = "1"
   }
 }
 
@@ -81,7 +84,7 @@ resource "aws_route_table" "mern-estate-private-rt" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.mern-estate-igw.id
+    gateway_id = aws_nat_gateway.mern-estate-nat.id 
   }
 
   tags = {

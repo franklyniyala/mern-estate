@@ -115,7 +115,7 @@ resource "aws_eks_node_group" "default" {
   }
 
   ami_type       = "AL2023_x86_64_STANDARD"
-  instance_types = ["t3.medium"]
+  instance_types = ["m7i-flex.large"]
 
   tags = {
     Name = "node-eks-worker"

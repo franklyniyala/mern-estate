@@ -1,5 +1,12 @@
 pipeline {
     agent any
+
+        environment {
+            AWS_REGION = 'us-east-1'
+            REPOSITORY_URI = '139156132664.dkr.ecr.us-east-1.amazonaws.com/mern-estate-repo'
+            IMAGE_TAG = '${BUILD_NUMBER}'
+        }
+
     stages {
         stage('Checkout') {
             steps {
@@ -18,11 +25,21 @@ pipeline {
                     -e SONAR_TOKEN=$SONAR_TOKEN \
                     -v $(pwd):/usr/src \
                     sonarsource/sonar-scanner-cli \
-                    -Dsonar.projectKey=frank-org_mern-app \
+                    -Dsonar.projectKey=frank-org_mern-estate \
                     -Dsonar.organization=frank-org \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=https://sonarcloud.io
                     '''
+                }
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                withCredentials([string(credentialsId: 'AWS_ECR_LOGIN', variable: accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh '''
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+                    ''' 
                 }
             }
         }
@@ -32,44 +49,23 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'docker compose build'
-            }
-        }
-
-        stage('Login to DockerHub') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'DOCKER_LOGIN',
-                    usernameVariable: 'DOCKER_USERNAME',
-                    passwordVariable: 'DOCKER_PASSWORD'
-                )]){
-                    sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
-                }
-            }
-        }
-
-        stage('Push to DockerHub') {
-            steps {
-                sh '''
-                docker tag mern-application-client ekenefranklyn/mern-application-client:latest
-                docker tag mern-application-api ekenefranklyn/mern-application-api:latest
-                docker push ekenefranklyn/mern-application-client:latest
-                docker push ekenefranklyn/mern-application-api:latest
-                '''
+                sh 'docker tag mern-app:$IMAGE_TAG $REPOSITORY_URI:$IMAGE:TAG'
             }
         }
 
 
-        stage('Deploy') {
+        stage('Push to ECR') {
             steps {
-                sh 'docker compose up -d'
+                sh 'docker push $REPOSITORY_URI:$IMAGE_TAG'
             }
         }
     }
 
     post {
         success {
-            echo '✅ Build and pushed successful!'
-            echo '✅ Application deployed successfully!'
+            echo ' ✅ SonarCloud Analysis successful!'
+            echo ' ✅ Build and pushed to ECR successful!'
+            echo 'Pushed image: $REPOSITORY_URI:$IMAGE_TAG'
         }
 
         failure {
