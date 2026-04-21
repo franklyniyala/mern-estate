@@ -48,7 +48,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'docker-compose build'
+                sh 'docker compose build'
                 sh 'docker tag mern-app-api:latest $REPOSITORY_URI:api-$IMAGE_TAG'
                 sh 'docker tag mern-app-client:latest $REPOSITORY_URI:client-$IMAGE_TAG'
             }
