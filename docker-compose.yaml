@@ -4,8 +4,8 @@ services:
     container_name: mern-estate-mongo
     restart: unless-stopped
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=mongo-username
-      - MONGO_INITDB_ROOT_PASSWORD=mongo-password
+       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
+       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
@@ -19,7 +19,7 @@ services:
     container_name: mern-estate-api
     restart: unless-stopped
     environment:
-      - MONGO=mongodb://mongo-username:mongo-password@mongo:27017/mern-estate?authSource=admin
+      - MONGO=mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo:27017/${MONGO_DB_NAME}?authSource=admin
       - NODE_ENV=development
     ports:
       - "5000:5000"

@@ -67,7 +67,8 @@ pipeline {
         success {
             echo ' ✅ SonarCloud Analysis successful!'
             echo ' ✅ Build and pushed to ECR successful!'
-            echo 'Pushed image: $REPOSITORY_URI:$IMAGE_TAG'
+            echo 'Pushed image: $REPOSITORY_URI:api-$IMAGE_TAG'
+            echo 'Pushed image: $REPOSITORY_URI:client-$IMAGE_TAG'
         }
 
         failure {
