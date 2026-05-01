@@ -28,7 +28,7 @@ pipeline {
                     -Dsonar.projectKey=frank-org_mern-estate \
                     -Dsonar.organization=frank-org \
                     -Dsonar.sources=. \
-                    -Dsonar.host.url=https://sonarcloud.io
+                    -Dsonar.host.url=https://sonarcloud.io \
                     '''
                 }
             }
@@ -61,18 +61,28 @@ pipeline {
                 sh 'docker push $REPOSITORY_URI:client-$IMAGE_TAG'
             }
         }
+
+        stage('Deploy to AWS ') {
+            steps {
+                sh '''
+                docker compose down
+                docker compose up -d
+                '''
+            }
+        }
     }
 
     post {
         success {
             echo ' ✅ SonarCloud Analysis successful!'
             echo ' ✅ Build and pushed to ECR successful!'
-            echo 'Pushed image: $REPOSITORY_URI:api-$IMAGE_TAG'
-            echo 'Pushed image: $REPOSITORY_URI:client-$IMAGE_TAG'
+            echo ' ✅ Deployed to AWS successful!'
+            echo "Pushed Images: $REPOSITORY_URI:api-$IMAGE_TAG and $REPOSITORY_URI:client-$IMAGE_TAG"
+            
         }
 
         failure {
-            echo '❌ Build or test failed.'
+            echo '❌ Build or test failed check logs for details.'
         }
     }
 

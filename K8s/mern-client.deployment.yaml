@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mern-client
+  labels:
+    app: mern-client
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mern-client
+  template:
+    metadata:
+      labels:
+        app: mern-client
+    spec:
+      containers:
+      - name: mern-client-container
+      image: 139156132664.dkr.ecr.us-east-1.amazonaws.com/mern-estate-repo:client-latest
+        ports:
+        - containerPort: 5173

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mern-api
+  labels:
+    app: mern-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mern-api
+  template:
+    metadata:
+      labels:
+        app: mern-api
+    spec:
+      containers:
+        - name: mern-api-container
+      image: 139156132664.dkr.ecr.us-east-1.amazonaws.com/mern-estate-repo:api-latest
+        ports:
+        - containerPort: 5000
+      image: mern-api:latest
+      ports:
+        - containerPort: 5000
