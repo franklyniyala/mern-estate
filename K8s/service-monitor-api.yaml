@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mern-api-sm
+  labels:
+    release: prometheus
+spec:
+  selector:
+      matchLabels:
+        app: mern-api
+  namespaceSelector:
+    any: true
+  endpoints:
+  - port: http
+    interval: 15s
+    path: /metrics

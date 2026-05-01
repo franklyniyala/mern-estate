@@ -16,9 +16,25 @@ spec:
     spec:
       containers:
         - name: mern-api-container
-      image: 139156132664.dkr.ecr.us-east-1.amazonaws.com/mern-estate-repo:api-latest
-        ports:
-        - containerPort: 5000
-      image: mern-api:latest
-      ports:
-        - containerPort: 5000
+          image: 139156132664.dkr.ecr.us-east-1.amazonaws.com/mern-estate-repo:api-latest
+          ports:
+          - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+              initialDelaySeconds: 5
+              periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+              initialDelaySeconds: 15
+              periodSeconds: 20
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m" 
