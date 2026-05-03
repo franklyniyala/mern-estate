@@ -62,12 +62,14 @@ pipeline {
             }
         }
 
-        stage('Deploy to AWS ') {
+        stage('Deploy to Kubernetes ') {
             steps {
-                sh '''
-                docker compose down
-                docker compose up -d
-                '''
+                withCredentials([aws(credentialsId: 'AWS_CRED_LOGIN', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh '''
+                    aws eks update-kubeconfig --region $AWS_REGION --name devops-eks
+                    kubectl apply -f K8s/
+                    '''
+                }
             }
         }
     }
@@ -76,7 +78,7 @@ pipeline {
         success {
             echo ' ✅ SonarCloud Analysis successful!'
             echo ' ✅ Build and pushed to ECR successful!'
-            echo ' ✅ Deployed to AWS successful!'
+            echo ' ✅ Deployed to Kubernetes successful!'
             echo "Pushed Images: $REPOSITORY_URI:api-$IMAGE_TAG and $REPOSITORY_URI:client-$IMAGE_TAG"
             
         }
