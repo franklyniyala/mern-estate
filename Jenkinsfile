@@ -64,7 +64,7 @@ pipeline {
 
         stage('Deploy to Kubernetes ') {
             steps {
-                withCredentials([aws(credentialsId: 'AWS_CRED_LOGIN', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                withCredentials([aws(credentialsId: 'AWS_ECR_LOGIN', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh '''
                     aws eks update-kubeconfig --region $AWS_REGION --name devops-eks
                     kubectl apply -f K8s/
