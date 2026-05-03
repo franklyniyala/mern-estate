@@ -23,14 +23,14 @@ spec:
             httpGet:
               path: /health
               port: 5000
-              initialDelaySeconds: 5
-              periodSeconds: 10
+            initialDelaySeconds: 5
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /health
               port: 5000
-              initialDelaySeconds: 15
-              periodSeconds: 20
+            initialDelaySeconds: 15
+            periodSeconds: 20
           resources:
             requests:
               memory: "128Mi"
