@@ -17,6 +17,12 @@ spec:
       containers:
         - name: mern-api-container
           image: 139156132664.dkr.ecr.us-east-1.amazonaws.com/mern-estate-repo:api-latest
+          env:
+            -name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mern-secrets
+                  key: MONGO_URI
           ports:
           - containerPort: 5000
           readinessProbe:

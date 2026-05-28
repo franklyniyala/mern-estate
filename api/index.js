@@ -9,11 +9,40 @@ import path from 'path';
 
 dotenv.config();
 
+const buildMongoUri = () => {
+  if (process.env.MONGO) return process.env.MONGO;
+
+  const {
+    MONGO_ROOT_USERNAME,
+    MONGO_ROOT_PASSWORD,
+    MONGO_DB_NAME,
+    MONGO_HOST = '127.0.0.1',
+    MONGO_PORT = '27017',
+  } = process.env;
+
+  if (MONGO_ROOT_USERNAME && MONGO_ROOT_PASSWORD && MONGO_DB_NAME) {
+    return `mongodb://${encodeURIComponent(MONGO_ROOT_USERNAME)}:${encodeURIComponent(
+      MONGO_ROOT_PASSWORD,
+    )}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB_NAME}?authSource=admin`;
+  }
+
+  return undefined;
+};
+
+const mongoUri = buildMongoUri();
+if (!mongoUri) {
+  console.error(
+    'Missing MongoDB connection info. Set MONGO or MONGO_ROOT_USERNAME, MONGO_ROOT_PASSWORD, and MONGO_DB_NAME in .env.',
+  );
+  process.exit(1);
+}
+
 try {
-  await mongoose.connect(process.env.MONGO);
+  await mongoose.connect(mongoUri);
   console.log('Connected to MongoDB!');
 } catch (err) {
-  console.log(err);
+  console.error('MongoDB connection failed:', err);
+  process.exit(1);
 }
 
 const __dirname = path.resolve();
