@@ -7,8 +7,15 @@
   "scripts": {
     "dev": "nodemon api/index.js",
     "start": "node api/index.js",
-    "build": "npm install && npm install --prefix client && npm run build --prefix client"
+    "build": "npm install && npm install --prefix client && npm run build --prefix client",
+    "lint": "npm run lint:client && npm run lint:api",
+    "lint:client": "cd client && npx eslint . --ext .js,.jsx --max-warnings 0",
+    "lint:api": "cd api && npx eslint . --ext .js --max-warnings 0",
+    "lint:fix": "npm run lint:fix:client && npm run lint:fix:api",
+    "lint:fix:client": "cd client && npx eslint . --ext .js,.jsx --fix",
+    "lint:fix:api": "cd api && npx eslint . --ext .js --fix"
   },
+  
   "keywords": [],
   "author": "",
   "license": "ISC",

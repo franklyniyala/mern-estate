@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useRef, useState, useEffect } from 'react';
 import {
   getDownloadURL,
@@ -16,8 +16,8 @@ import {
   deleteUserSuccess,
   signOutUserStart,
 } from '../redux/user/userSlice';
-import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+
 export default function Profile() {
   const fileRef = useRef(null);
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -30,23 +30,17 @@ export default function Profile() {
   const [userListings, setUserListings] = useState([]);
   const dispatch = useDispatch();
 
-  // firebase storage
-  // allow read;
-  // allow write: if
-  // request.resource.size < 2 * 1024 * 1024 &&
-  // request.resource.contentType.matches('image/.*')
-
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
     }
-  }, [file]);
+  }, [file]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFileUpload = (file) => {
+  const handleFileUpload = (uploadFile) => {
     const storage = getStorage(app);
-    const fileName = new Date().getTime() + file.name;
+    const fileName = new Date().getTime() + uploadFile.name;
     const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const uploadTask = uploadBytesResumable(storageRef, uploadFile);
 
     uploadTask.on(
       'state_changed',
@@ -55,12 +49,12 @@ export default function Profile() {
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setFilePerc(Math.round(progress));
       },
-      (error) => {
+      (_err) => {
         setFileUploadError(true);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
-          setFormData({ ...formData, avatar: downloadURL })
+          setFormData((prev) => ({ ...prev, avatar: downloadURL }))
         );
       }
     );
@@ -86,11 +80,10 @@ export default function Profile() {
         dispatch(updateUserFailure(data.message));
         return;
       }
-
       dispatch(updateUserSuccess(data));
       setUpdateSuccess(true);
-    } catch (error) {
-      dispatch(updateUserFailure(error.message));
+    } catch (err) {
+      dispatch(updateUserFailure(err.message));
     }
   };
 
@@ -106,8 +99,8 @@ export default function Profile() {
         return;
       }
       dispatch(deleteUserSuccess(data));
-    } catch (error) {
-      dispatch(deleteUserFailure(error.message));
+    } catch (err) {
+      dispatch(deleteUserFailure(err.message));
     }
   };
 
@@ -121,8 +114,8 @@ export default function Profile() {
         return;
       }
       dispatch(deleteUserSuccess(data));
-    } catch (error) {
-      dispatch(deleteUserFailure(data.message));
+    } catch (err) {
+      dispatch(deleteUserFailure(err.message));
     }
   };
 
@@ -135,9 +128,8 @@ export default function Profile() {
         setShowListingsError(true);
         return;
       }
-
       setUserListings(data);
-    } catch (error) {
+    } catch (_err) {
       setShowListingsError(true);
     }
   };
@@ -149,17 +141,17 @@ export default function Profile() {
       });
       const data = await res.json();
       if (data.success === false) {
-        console.log(data.message);
+        console.error(data.message);
         return;
       }
-
       setUserListings((prev) =>
         prev.filter((listing) => listing._id !== listingId)
       );
-    } catch (error) {
-      console.log(error.message);
+    } catch (err) {
+      console.error(err.message);
     }
   };
+
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl font-semibold text-center my-7'>Profile</h1>
@@ -171,12 +163,18 @@ export default function Profile() {
           hidden
           accept='image/*'
         />
-        <img
+        <button
+          type='button'
           onClick={() => fileRef.current.click()}
+          className='self-center mt-2 rounded-full p-0 border-none bg-transparent cursor-pointer'
+        >
+        <img
           src={formData.avatar || currentUser.avatar}
           alt='profile'
-          className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2'
+          className='rounded-full h-24 w-24 object-cover'
         />
+        </button>
+        
         <p className='text-sm self-center'>
           {fileUploadError ? (
             <span className='text-red-700'>
@@ -227,15 +225,18 @@ export default function Profile() {
         </Link>
       </form>
       <div className='flex justify-between mt-5'>
-        <span
+        <button
           onClick={handleDeleteUser}
-          className='text-red-700 cursor-pointer'
+          className='text-red-700 cursor-pointer bg-transparent border-none p-0'
         >
           Delete account
-        </span>
-        <span onClick={handleSignOut} className='text-red-700 cursor-pointer'>
+        </button>
+        <button
+          onClick={handleSignOut}
+          className='text-red-700 cursor-pointer bg-transparent border-none p-0'
+        >
           Sign out
-        </span>
+        </button>
       </div>
 
       <p className='text-red-700 mt-5'>{error ? error : ''}</p>
@@ -267,12 +268,11 @@ export default function Profile() {
                 />
               </Link>
               <Link
-                className='text-slate-700 font-semibold  hover:underline truncate flex-1'
+                className='text-slate-700 font-semibold hover:underline truncate flex-1'
                 to={`/listing/${listing._id}`}
               >
                 <p>{listing.name}</p>
               </Link>
-
               <div className='flex flex-col item-center'>
                 <button
                   onClick={() => handleListingDelete(listing._id)}

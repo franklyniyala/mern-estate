@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ListingItem from '../components/ListingItem';
 
 export default function Search() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebardata, setSidebardata] = useState({
     searchTerm: '',
     type: 'all',
@@ -40,9 +41,9 @@ export default function Search() {
       setSidebardata({
         searchTerm: searchTermFromUrl || '',
         type: typeFromUrl || 'all',
-        parking: parkingFromUrl === 'true' ? true : false,
-        furnished: furnishedFromUrl === 'true' ? true : false,
-        offer: offerFromUrl === 'true' ? true : false,
+        parking: parkingFromUrl === 'true',
+        furnished: furnishedFromUrl === 'true',
+        offer: offerFromUrl === 'true',
         sort: sortFromUrl || 'created_at',
         order: orderFromUrl || 'desc',
       });
@@ -54,11 +55,7 @@ export default function Search() {
       const searchQuery = urlParams.toString();
       const res = await fetch(`/api/listing/get?${searchQuery}`);
       const data = await res.json();
-      if (data.length > 8) {
-        setShowMore(true);
-      } else {
-        setShowMore(false);
-      }
+      setShowMore(data.length > 8);
       setListings(data);
       setLoading(false);
     };
@@ -86,16 +83,13 @@ export default function Search() {
     ) {
       setSidebardata({
         ...sidebardata,
-        [e.target.id]:
-          e.target.checked || e.target.checked === 'true' ? true : false,
+        [e.target.id]: e.target.checked,
       });
     }
 
     if (e.target.id === 'sort_order') {
       const sort = e.target.value.split('_')[0] || 'created_at';
-
       const order = e.target.value.split('_')[1] || 'desc';
-
       setSidebardata({ ...sidebardata, sort, order });
     }
   };
@@ -115,8 +109,7 @@ export default function Search() {
   };
 
   const onShowMoreClick = async () => {
-    const numberOfListings = listings.length;
-    const startIndex = numberOfListings;
+    const startIndex = listings.length;
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('startIndex', startIndex);
     const searchQuery = urlParams.toString();
@@ -127,12 +120,13 @@ export default function Search() {
     }
     setListings([...listings, ...data]);
   };
+
   return (
     <div className='flex flex-col md:flex-row'>
-      <div className='p-7  border-b-2 md:border-r-2 md:min-h-screen'>
+      <div className='p-7 border-b-2 md:border-r-2 md:min-h-screen'>
         <form onSubmit={handleSubmit} className='flex flex-col gap-8'>
           <div className='flex items-center gap-2'>
-            <label className='whitespace-nowrap font-semibold'>
+            <label htmlFor='searchTerm' className='whitespace-nowrap font-semibold'>
               Search Term:
             </label>
             <input
@@ -145,7 +139,7 @@ export default function Search() {
             />
           </div>
           <div className='flex gap-2 flex-wrap items-center'>
-            <label className='font-semibold'>Type:</label>
+            <label htmlFor='all' className='font-semibold'>Type:</label>
             <div className='flex gap-2'>
               <input
                 type='checkbox'
@@ -154,7 +148,7 @@ export default function Search() {
                 onChange={handleChange}
                 checked={sidebardata.type === 'all'}
               />
-              <span>Rent & Sale</span>
+              <span>Rent &amp; Sale</span>
             </div>
             <div className='flex gap-2'>
               <input
@@ -188,7 +182,7 @@ export default function Search() {
             </div>
           </div>
           <div className='flex gap-2 flex-wrap items-center'>
-            <label className='font-semibold'>Amenities:</label>
+            <label htmlFor='parking' className='font-semibold'>Amenities:</label>
             <div className='flex gap-2'>
               <input
                 type='checkbox'
@@ -211,7 +205,7 @@ export default function Search() {
             </div>
           </div>
           <div className='flex items-center gap-2'>
-            <label className='font-semibold'>Sort:</label>
+            <label htmlFor='sort_order' className='font-semibold'>Sort:</label>
             <select
               onChange={handleChange}
               defaultValue={'created_at_desc'}
@@ -219,7 +213,7 @@ export default function Search() {
               className='border rounded-lg p-3'
             >
               <option value='regularPrice_desc'>Price high to low</option>
-              <option value='regularPrice_asc'>Price low to hight</option>
+              <option value='regularPrice_asc'>Price low to high</option>
               <option value='createdAt_desc'>Latest</option>
               <option value='createdAt_asc'>Oldest</option>
             </select>
@@ -242,13 +236,11 @@ export default function Search() {
               Loading...
             </p>
           )}
-
           {!loading &&
             listings &&
             listings.map((listing) => (
               <ListingItem key={listing._id} listing={listing} />
             ))}
-
           {showMore && (
             <button
               onClick={onShowMoreClick}

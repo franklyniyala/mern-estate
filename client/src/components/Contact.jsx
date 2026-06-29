@@ -37,7 +37,7 @@ export default function Contact({ listing }) {
             onChange={onChange}
             placeholder='Enter your message here...'
             className='w-full border p-3 rounded-lg'
-          ></textarea>
+           />
 
           <Link
           to={`mailto:${landlord.email}?subject=Regarding ${listing.name}&body=${message}`}
